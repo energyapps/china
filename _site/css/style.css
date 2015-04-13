@@ -1,20 +1,61 @@
-/********************************************
+body {
+  /*background: #0071A3;*/
+  background: #fff;
+}
 
-	Styles to be added to energy.gov in order 
-	to allow it to look however you want it.
-	Reminder: make it responsive
+#text-container {
+  width: 70%;
+}
 
-********************************************/
+/*Color of the world and its border (ocean)*/
+.fill {
+  /*fill: #19A9E2;*/
+  /*fill:rgb(21,192,199);*/
+  fill:#5bc3ed;
+}
+
+.stroke {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3px;
+}
 
 
-/*+++++++++++++++++++++++++++
-Map
-++++++++++++++++++++++++++++++++++++++*/
- #master_container {
- 	font-family: 'Avenir LT W02 35 Light',verdana,sans-serif;
-    text-transform: none !important;
-    position: relative;
-    width: 100%;
-    height: 800px;
- }
- #map { position:absolute; top:0; height: 500px; width:100%;}
+/*graticules*/
+.graticule {
+  fill: none;
+  /*stroke: #ce008d;*/
+  stroke:#0071A3;
+  stroke-opacity:0.5;
+  stroke-width: 0.5px;
+}
+
+/*Places*/
+.place, .place-label {
+  font-family:'Avenir LT W02 35 Light';
+  /*fill: #ACACAC;*/
+  fill: #464646
+}
+
+.place-label .active {
+  fill: #464646
+}
+
+
+/*Countries*/
+.subunit.CHN { fill: #cbef7d; }
+.subunit { 
+  fill: #ddf5aa; 
+}
+
+.subunit-boundary.IRL {
+  stroke: #aaa;
+}
+
+.subunit-boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5;
+  /*stroke-dasharray: 4,4;
+  stroke-linejoin: round;*/
+}

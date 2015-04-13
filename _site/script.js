@@ -1,5 +1,7 @@
+<script>
+
 var width = 1000,
-    height = 600;         
+    height = 1000;         
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -58,61 +60,29 @@ document.getElementById("myclipangle_container").style.visibility = "hidden";
 }  
 
 function buildMap(projection, graticule) {
-d3.json("js/world_topo.json", function(error, world) {
+d3.json("js/world_50m.json", function(error, world) {
   if (error) return console.error(error);
 
   d3.select("body").selectAll(".place-label").data([]).exit().remove();
   d3.select("body").selectAll("path").data([]).exit().remove();  
-  d3.select("body").selectAll("use").data([]).exit().remove();  
-  d3.select("body").selectAll("defs").data([]).exit().remove();  
-
 
 var path = d3.geo.path()
-  .projection(projection)
-  .pointRadius([5]);
+  .projection(projection);
 
-// Define the sphere of the world, and the ocean color
-svg.append("defs").append("path")
-    .datum({type: "Sphere"})
-    .attr("id", "sphere")
-    .attr("d", path);
-
-svg.append("use")
-    .attr("class", "stroke")
-    .attr("xlink:href", "#sphere");
-
-svg.append("use")
-    .attr("class", "fill")
-    .attr("xlink:href", "#sphere");
-
-// graticules
   svg.append("path")
     .datum(graticule)
     .attr("class", "graticule")
     .attr("d", path);
 
-// define countries
-  svg.selectAll(".subunit")
-    .data(topojson.feature(world, world.objects.a50m_world).features)
-    .enter().append("path")
-    .attr("class", function(d) {
-      return "subunit " + d.id; 
-    })
-    .attr('d', path);
-
-// define borders
   svg.append("path")
-    .datum(topojson.mesh(world, world.objects.a50m_world, function(a, b) { return a !== b && a.id !== "IRL";}))
-    .attr("d", path)
-    .attr("class", "subunit-boundary");
+      .datum(topojson.feature(world, world.objects.us_50m_world  ))
+      .attr("class", "boundary")
+      .attr("d", path);
 
-// define places and labels
   svg.append("path")
       .datum(topojson.feature(world, world.objects.china_cities_places3))
       .attr("d", path)
       .attr("class", "place");
-
-    path.pointRadius([25]);
 
   svg.selectAll(".place-label")
       .data(topojson.feature(world, world.objects.china_cities_places3).features)
@@ -228,3 +198,5 @@ window.onload= clickFunction();
   function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+
+</script>

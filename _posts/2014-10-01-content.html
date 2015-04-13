@@ -1,162 +1,46 @@
 ---
 layout: post
 ---
-
-<style>
-
-.graticule {
-  fill: #fff;
-  /*fill-opacity: 0.2;*/
-  stroke: #ce008d;
-}
-
-.boundary {
-  fill: rgb(141,206,0);
-  fill-opacity: 1;
-  stroke: #fff;
-}
-
-</style>
 <body>
-If you want to create awesome <a href="" target="_blank">D3 Satellite maps</a>, you're going to need to fiddle with the parameters to get the zoom and angles right. If you want to read up more on the rather esoteric names of each of these (below) check out the D3 geo projections documentation. 
+  <div id="text-container">
+    If you want to create awesome <a href="http://bl.ocks.org/mbostock/3790444" target="_blank">D3 Satellite maps</a>, you're going to need to fiddle with the parameters to get the zoom and angles right. This tool allows you to do that more quickly. If you want to read up more on the names of each of these (below) check out the <a href="https://github.com/mbostock/d3/wiki/Geo-Projections" target="_blank">D3 geo projections documentation</a>. <br>
+    Made by <a href="">Daniel Wood</a>.
+  </div><br>
+Start by clicking this: <button onclick="clickPreset('random')">Random</button>
+<br>
+<br>
 
-<br><br>
-
+Parameters (I would recommend fiddling mostly with distance, scale, rotation, and the graticules)<br>
   distance: <input type="text" id="mydistance" value="20">
-  scale: <input type="text" id="myscale" value="1500"><br>
+  scale: <input type="text" id="myscale" value="1450"><br>
   <a target="_blank" href="http://bl.ocks.org/mbostock/4282586">Rotation of the globe</a>:
-  yaw (λ): <input type="text" id="myyaw" value="-115">
-  pitch (φ): <input type="text" id="mypitch" value="15">
+  yaw (λ): <input type="text" id="myyaw" value="-118">
+  pitch (φ): <input type="text" id="mypitch" value="20">
   roll (γ): <input type="text" id="myroll" value="15"><br>
   Center (x): <input type="text" id="mycenterx" value="-10">
   Center (y): <input type="text" id="mycentery" value="55"><br>
   tilt: <input type="text" id="mytilt" value="20">precision: <input type="text" id="myprecision" value="0.1"><br>
-  Clip to Horizon: 
+  <a href="https://github.com/d3/d3-plugins/issues/52">Clip to Horizon</a>: 
   <input type="radio" name="horizon" checked="checked" id="horizon_yes" value="yes">Yes<input type="radio" name="horizon" id="horizon_no" value="no">No<br>
   <div id="myclipangle_container">
     If no, select a ClipAngle between 0 and 180: <input type="text" id="myclipangle" value="90">
   </div>
-  Longitude Graticule intreval: <input type="text" id="mygraticulex" value="6">
-  Latitude Graticule intreval: <input type="text" id="mygraticuley" value="6">
-<p>Click to redraw the map.</p>
+  Longitude Graticule intreval: <input type="text" id="mygraticulex" value="1">
+  Latitude Graticule intreval: <input type="text" id="mygraticuley" value="1"> <br><br>
+Click to redraw the map.
+<button onclick="clickFunction()">Redraw</button>
+<br>
+<br>
+Check out these preset examples:
+<button onclick="clickPreset('random')">Random</button>
+<button onclick="clickPreset('globe')">Mediterranean Globe</button>
+<button onclick="clickPreset('us')">Northeast US</button>
+<button onclick="clickPreset('west')">Western US</button>
+<button onclick="clickPreset('original')">China</button>
+<button onclick="clickPreset('fisheye')">FishEye</button>
 
-<button onclick="clickFunction()">Try it</button>
+<a href="https://github.com/DanielJWood/d3-satellite-tool"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>  
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
-<script>
-
-var width = 1000,
-    height = 1000;         
-
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-var no = document.getElementById('horizon_no');
-var yes = document.getElementById('horizon_yes');
-
-no.onclick = function() {
-  document.getElementById("myclipangle_container").style.visibility = "visible";
-}
-yes.onclick = function() {
-  document.getElementById("myclipangle_container").style.visibility = "hidden";
-}
-
-
-// When clicked (or on first load), set the parameters from the boxes, then build the map
-function clickFunction() {
-
-document.getElementById("myclipangle_container").style.visibility = "hidden";
-
-  var distance = document.getElementById("mydistance").value;
-  var scale = document.getElementById("myscale").value;
-  var yaw = document.getElementById("myyaw").value;
-  var pitch = document.getElementById("mypitch").value;
-  var roll = document.getElementById("myroll").value;
-  var centerx = document.getElementById("mycenterx").value;
-  var centery = document.getElementById("mycentery").value;
-  var tilt = document.getElementById("mytilt").value;
-  var precision = document.getElementById("myprecision").value;
-  var graticulex = document.getElementById("mygraticulex").value;
-  var graticuley = document.getElementById("mygraticuley").value;
-
-  if(document.getElementById('horizon_yes').checked) {
-    console.log('yes')
-    var clipAngle = Math.acos(1 / distance) * 180 / Math.PI - 1e-6;
-    console.log(clipAngle)
-  }else if(document.getElementById('horizon_no').checked) {
-    var clipAngle = document.getElementById("myclipangle").value;
-  }
-
-  // var projection = d3.geo.satellite()
-    var projection = d3.geo.satellite()
-      .distance(distance)
-      .scale(scale)    
-      .center([centerx, centery])
-      .tilt(tilt)
-      .clipAngle(clipAngle)
-      .precision(precision)
-      .rotate([yaw, pitch, roll]) //yaw, pitch, roll    ;    
-
-  var graticule = d3.geo.graticule()
-    // .extent([[-93, 0.49], [170.61, 90]])
-    // .extent([-36,-110.50],[-47,57])
-    .step([graticulex, graticuley]);
-
-  buildMap(projection, graticule);
-}  
-
-function buildMap(projection, graticule) {
-console.log('Build Map')
-d3.json("js/world_50m.json", function(error, world) {
-  if (error) return console.error(error);
-
-  d3.select("body").selectAll(".place-label").data([]).exit().remove();
-  d3.select("body").selectAll("path").data([]).exit().remove();  
-
-var path = d3.geo.path()
-  .projection(projection);
-
-  svg.append("path")
-    .datum(graticule)
-    .attr("class", "graticule")
-    .attr("d", path);
-
-  svg.append("path")
-      .datum(topojson.feature(world, world.objects.us_50m_world  ))
-      .attr("class", "boundary")
-      .attr("d", path);
-
-  svg.append("path")
-      .datum(topojson.feature(world, world.objects.china_cities_places3))
-      .attr("d", path)
-      .attr("class", "place");
-
-  svg.selectAll(".place-label")
-      .data(topojson.feature(world, world.objects.china_cities_places3).features)
-    .enter().append("text")
-    .attr("class", "place-label")
-    .attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
-    .attr("dy", ".35em")
-    .text(function(d) { return d.properties.name; });
-
-    });
-
-};
-
-
-d3.select(self.frameElement).style("height", height + "px");
-
-window.onload= clickFunction();
-
-// d3.json("js/us-land.json", function(error, us) {
-//   svg.append("path")
-//       .datum(topojson.feature(us, us.objects.land))
-//       .attr("class", "boundary")
-//       .attr("d", path);
-// });
-
-
-</script>
